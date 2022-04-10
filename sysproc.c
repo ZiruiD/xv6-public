@@ -89,3 +89,16 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+int
+sys_mprotect(void)
+{
+  return 123;
+}
+
+
+int
+sys_munprotect(void){
+  return 456;
+}
