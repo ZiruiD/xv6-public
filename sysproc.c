@@ -94,11 +94,55 @@ sys_uptime(void)
 int
 sys_mprotect(void)
 {
-  return 123;
+  void * addr;
+  int len;
+
+//pass address and length
+//check if the pointer lies within the address space
+  if(argint(1, &len)<0 || argptr(0, (char **)&addr, sizeof(void *))){
+    cprintf("unsuccessfully fetch\n");
+    return -1;
+  }
+
+//check if length > 0
+  if(len<=0){
+    cprintf("length must be positive\n");
+    return -1;
+  }
+
+  //check if address is page aligned
+  if(((uint)addr%PGSIZE)!=0){
+    cprintf("Address not page aligned\n");
+    return -1;
+  }
+
+  return mprotect(addr, len);
 }
 
 
 int
 sys_munprotect(void){
-  return 456;
+  void * addr;
+  int len;
+
+//pass address and length
+//check if the pointer lies within the address space
+  if(argint(1, &len)<0 || argptr(0, (char **)&addr, sizeof(void *))){
+    cprintf("unsuccessfully fetch\n");
+    return -1;
+  }
+
+//check if length > 0
+  if(len<=0){
+    cprintf("length must be positive\n");
+    return -1;
+  }
+
+  //check if address is page aligned
+  if(((uint)addr%PGSIZE)!=0){
+    cprintf("Address Must be page aligned\n");
+    return -1;
+  }
+
+  return munprotect(addr, len);
 }

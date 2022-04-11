@@ -392,6 +392,63 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+
+//change the protection bits of the page range starting at addr and of len pages 
+//to be read only
+int
+mprotect(void *addr, int len)
+{
+  pte_t *pte;
+  struct proc *curproc = myproc();
+  int index;
+  int int_addr = (int) addr;
+  int end = len*PGSIZE+int_addr;
+
+  //check address+length with limit, address was checked in sys_mprotect in sysproc.c
+  if((len+int_addr)>=curproc->vlimit){
+    cprintf("invalid length\n");
+    return -1;
+  }
+
+  for(index = (int)addr; index<end; index+=PGSIZE){
+    pte = walkpgdir(curproc->pgdir, (void *)index, 0);
+    if(pte==0){
+      return -1;
+    }
+    *pte = *pte & ~PTE_W;  //change the protection bit to 'not writable'
+  }
+
+  //update
+  lcr3(V2P(curproc->pgdir));
+  return 0;
+}
+
+
+//set the protection bits of the page range starting at addr and of len pages
+//to both readable and writable
+int
+munprotect(void *addr, int len)
+{
+  pte_t *pte;
+  struct proc *curproc = myproc();
+  int index;
+  int int_addr = (int) addr;
+  int end = len*PGSIZE+int_addr;
+
+  
+  for(index = (int)addr; index<end; index+=PGSIZE){
+    pte = walkpgdir(curproc->pgdir, (void *)index, 0);
+    if(pte==0){
+      return -1;
+    }
+    *pte = *pte | PTE_W;  //change the protection bit back to writable
+  }
+
+  //update
+  lcr3(V2P(curproc->pgdir));
+  return 0;
+}
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!
