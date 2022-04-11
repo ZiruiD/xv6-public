@@ -404,11 +404,6 @@ mprotect(void *addr, int len)
   int int_addr = (int) addr;
   int end = len*PGSIZE+int_addr;
 
-  //check address+length with limit, address was checked in sys_mprotect in sysproc.c
-  if((len+int_addr)>=curproc->vlimit){
-    cprintf("invalid length\n");
-    return -1;
-  }
 
   for(index = (int)addr; index<end; index+=PGSIZE){
     pte = walkpgdir(curproc->pgdir, (void *)index, 0);
